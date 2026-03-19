@@ -1,0 +1,57 @@
+# =============================================================================
+# Policy Service - Remote Configuration (config-repo)
+# =============================================================================
+# Environment-specific config fetched from Git at runtime.
+# Local application.yml keeps only: spring.application.name, spring.config.import, server.port
+# =============================================================================
+
+spring:
+  # DataSource - credentials and URLs change per environment
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5434}/${DB_NAME:policy_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:secret}
+    hikari:
+      maximum-pool-size: 10
+
+  # JPA - ddl-auto differs between local dev and production
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# OpenFeign - timeouts and circuit-breaker tuned per environment
+feign:
+  circuitbreaker:
+    enabled: true
+  client:
+    config:
+      customer-service:
+        connectTimeout: 3000
+        readTimeout: 8000
+        loggerLevel: BASIC
+
+# Service URLs - infrastructure URLs change between local Docker Compose and AKS
+services:
+  customer:
+    url: ${CUSTOMER_SERVICE_URL:http://localhost:8082}
+
+# Resilience4j Circuit Breaker - tuned per environment under load
+resilience4j:
+  circuitbreaker:
+    instances:
+      customer-service:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+
+# Actuator - fewer endpoints in prod
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

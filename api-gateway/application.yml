@@ -1,0 +1,75 @@
+# =============================================================================
+# API Gateway - Remote Configuration (config-repo)
+# =============================================================================
+# Environment-specific config fetched from Git at runtime.
+# Local application.yml keeps only: spring.application.name, spring.config.import, server.port
+# =============================================================================
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          # Route definitions - can change without redeploying gateway (Spring Boot 4.0+)
+          routes:
+            - id: auth-service
+              uri: http://auth-service:8081
+              predicates:
+                - Path=/api/v1/auth/**
+
+            - id: customer-service
+              uri: http://customer-service:8082
+              predicates:
+                - Path=/api/v1/customers/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: customerServiceCB
+                    fallback-uri: forward:/fallback/customer-service
+
+            - id: policy-service
+              uri: http://policy-service:8083
+              predicates:
+                - Path=/api/v1/policies/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: policyServiceCB
+                    fallback-uri: forward:/fallback/policy-service
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenish-rate: 20
+                    redis-rate-limiter.burst-capacity: 40
+                    key-resolver: "#{@userIdKeyResolver}"
+
+  # Redis for rate limiting - URL changes per environment
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+# Resilience4j Circuit Breaker - tuned per environment under load
+resilience4j:
+  circuitbreaker:
+    instances:
+      customerServiceCB:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+      policyServiceCB:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+
+# JWT secret - should never be committed to service repo
+jwt:
+  secret: ${JWT_SECRET:bXlTdXBlclNlY3JldEtleUZvck1hbnVsaWZlSW50ZXJ2aWV3}
+
+# Actuator endpoints - fewer in prod, more in dev
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
