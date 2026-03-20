@@ -8,6 +8,7 @@
 spring:
   # DataSource - credentials and URLs change per environment
   datasource:
+    driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:auth_db}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:secret}
