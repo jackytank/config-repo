@@ -34,7 +34,7 @@ management:
 # =============================================================================
 logging:
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId:-},%X{spanId:-}] %logger{39} - %msg%n"
-    level: "%5p [%X{traceId:-},%X{spanId:-}]"
+    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}] "
+  include-application-name: false
   level:
     org.springframework.boot.autoconfigure: DEBUG
