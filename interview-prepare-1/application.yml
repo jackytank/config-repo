@@ -1,0 +1,37 @@
+# =============================================================================
+# Common Configuration - Applied to ALL Services
+# =============================================================================
+# This file is loaded first by all services, then overridden by service-specific
+# configs in {service-name}/application.yml
+# =============================================================================
+
+# =============================================================================
+# Distributed Tracing (Micrometer + Zipkin)
+# =============================================================================
+management:
+  tracing:
+    sampling:
+      probability: 1.0          # Sample 100% of requests (reduce to 0.1 for prod)
+    propagation:
+      type: W3C                 # W3C Trace Context standard
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans  # Zipkin collector URL
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,trace
+  endpoint:
+    health:
+      show-details: always
+
+# =============================================================================
+# Logging Pattern with Trace IDs
+# =============================================================================
+# Every log line will include: [traceId,spanId] for correlation across services
+# Example: 2026-03-21 10:15:30.123 [thread] INFO [abc123,def456] c.m.service - msg
+# =============================================================================
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId:-},%X{spanId:-}] %logger{39} - %msg%n"
+    level: "%5p [%X{traceId:-},%X{spanId:-}]"

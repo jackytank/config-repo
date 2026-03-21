@@ -1,8 +1,8 @@
 # =============================================================================
-# API Gateway - Remote Configuration (config-repo)
+# API Gateway - Service-Specific Configuration (config-repo)
 # =============================================================================
-# Environment-specific config fetched from Git at runtime.
-# Local application.yml keeps only: spring.application.name, spring.config.import, server.port
+# This extends common config from interview-prepare-1/application.yml
+# Only service-specific overrides are defined here
 # =============================================================================
 
 spring:
@@ -66,21 +66,3 @@ resilience4j:
 # JWT secret - should never be committed to service repo
 jwt:
   secret: ${JWT_SECRET:bXlTdXBlclNlY3JldEtleUZvck1hbnVsaWZlSW50ZXJ2aWV3}
-
-# Actuator endpoints - fewer in prod, more in dev
-management:
-  tracing:
-    sampling:
-      probability: 1.0
-    propagation:
-      type: W3C
-  zipkin:
-    tracing:
-      enpoint: http://zipkin:9411/api/v2/spans
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,trace,gateway
-  endpoint:
-    health:
-      show-details: always
