@@ -10,6 +10,7 @@
 # =============================================================================
 management:
   tracing:
+    enabled: true               # Explicitly enable tracing
     sampling:
       probability: 1.0          # Sample 100% of requests (reduce to 0.1 for prod)
     propagation:
@@ -20,7 +21,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,trace
+        include: health,info,metrics,trace,conditions
   endpoint:
     health:
       show-details: always
@@ -35,3 +36,5 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId:-},%X{spanId:-}] %logger{39} - %msg%n"
     level: "%5p [%X{traceId:-},%X{spanId:-}]"
+  level:
+    org.springframework.boot.autoconfigure: DEBUG
