@@ -69,7 +69,18 @@ jwt:
 
 # Actuator endpoints - fewer in prod, more in dev
 management:
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      type: W3C
+  zipkin:
+    tracing:
+      enpoint: http://zipkin:9411/api/v2/spans
   endpoints:
     web:
       exposure:
-        include: health,info,gateway
+        include: health,info,metrics,trace,gateway
+  endpoint:
+    health:
+      show-details: always
