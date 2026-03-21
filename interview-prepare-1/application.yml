@@ -10,7 +10,6 @@
 # =============================================================================
 management:
   tracing:
-    enabled: true               # Explicitly enable tracing
     sampling:
       probability: 1.0          # Sample 100% of requests (reduce to 0.1 for prod)
     propagation:
