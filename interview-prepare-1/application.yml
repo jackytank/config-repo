@@ -11,7 +11,7 @@
 management:
   tracing:
     sampling:
-      probability: 1.0          # Sample 100% of requests (reduce to 0.1 for prod)
+      probability: 1.0          # reduce to 0.1 for prod
     export:
       zipkin:
         endpoint: ${MANAGEMENT_TRACING_EXPORT_ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
